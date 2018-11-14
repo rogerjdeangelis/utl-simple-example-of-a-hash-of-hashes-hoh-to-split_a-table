@@ -1,5 +1,12 @@
 Simple example of a hash of hashes hoh to split a table
 
+Corrected on Nov 14, 2018 using comments by
+Keintz, Mark
+mkeintz@wharton.upenn.edu
+
+'Your program instantiates the hash iterator HI('hoh') once for each incoming record.
+You only need to do so once, either in the "IF _N_=1 ... do group", or after the "IF DNE;" statement.'
+
 * other methods;
 https://tinyurl.com/y6uzqbm2
 https://github.com/rogerjdeangelis/utl_thirteen_algorithms_to_split_a_table_based_on_groups_of_data
@@ -93,6 +100,7 @@ PROCESS
 
 
 data _null_;
+
 if _n_=1 then do;
    dcl hash Hoh () ;
       hoh.definekey  ("CURRENTYEAR") ;
@@ -104,22 +112,22 @@ end;
 set have end=dne;
 
 * load the detal data;
-if hoh.find() ne 0 then do;
-   h= _new_ hash(multidata:'y');
-   h.definekey  ("_iorc_") ;
-   h.definedata ('UNIQUE_ID','START','END','MONTHDATE','CURRENTYEAR') ;
-   h.definedone () ;
-   hoh.add();
-end;
+  if hoh.find() ne 0 then do;
+     h= _new_ hash(multidata:'y');
+     h.definekey  ("_iorc_") ;
+     h.definedata ('UNIQUE_ID','START','END','MONTHDATE','CURRENTYEAR') ;
+     h.definedone () ;
+     hoh.add();
+  end;
 
 h.add();
 
 dcl hiter hi('hoh');
 
-if dne;
-
-do while(hi.next()=0); * iterate though the years and output detail data;
-   h.output(dataset:catx('_','currentyear',CURRENTYEAR));
+if dne then do;
+   do while(hi.next()=0); * iterate though the years and output detail data;
+      h.output(dataset:catx('_','currentyear',CURRENTYEAR));
+   end;
 end;
 run;
 
@@ -128,7 +136,6 @@ run;
 | '_ ` _ \ / _` | |/ / _ \  / _` |/ _` | __/ _` |
 | | | | | | (_| |   <  __/ | (_| | (_| | || (_| |
 |_| |_| |_|\__,_|_|\_\___|  \__,_|\__,_|\__\__,_|
-
 ;
 
 data have;
@@ -154,6 +161,10 @@ cards4;
 000016 JUN11 MAY14 01MAY2014 2014
 ;;;;
 run;quit;
+
+
+
+
 
 
 
